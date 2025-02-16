@@ -81,4 +81,9 @@ app.get("/dashboard", (req, res) => {
   res.send(`Welcome, ${req.session.username}!`);
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+module.exports = app;
+
+// Start the server only if not in testing mode
+if (require.main === module) {
+  app.listen(5000, () => console.log("Server running on port 5000"));
+}

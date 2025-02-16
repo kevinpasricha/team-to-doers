@@ -16,7 +16,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "supertest": "^7.0.0"
   },
   "devDependencies": {
     "qunit": "^2.24.1"
