@@ -12,6 +12,8 @@ const bodyParser = require("body-parser");
 
 const cors = require("cors");
 
+const { isValidEmail, isValidPassword } = require("./utils/validation");
+
 const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
@@ -28,7 +30,6 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  port: 3306,
 });
 
 db.connect((err) => {
@@ -75,6 +76,57 @@ app.post("/logout", (req, res) => {
   req.session.destroy(() => {
     res.send("Logged out successfully!");
   });
+});
+
+app.post("/register", (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).send("All fields are required.");
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).send("Invalid Format.");
+  }
+
+  if (!isValidPassword(password)) {
+    return res.status(400).send("Password must be at least 8 characters long.");
+  }
+
+  db.query(
+    "SELECT username FROM users WHERE username = ? LIMIT 1",
+    [username],
+    (err, results) => {
+      if (err) return res.status(500).send("Database Error");
+
+      if (results.length > 0)
+        return res.status(400).send("Username is already taken.");
+
+      db.query(
+        "SELECT email FROM users WHERE email = ? LIMIT 1",
+        [email],
+        (err, results) => {
+          if (err) return res.status(500).send("Database Error");
+
+          if (results.length > 0)
+            return res.status(400).send("Email already registered.");
+
+          bcrypt.hash(password, 10, (err, hash) => {
+            if (err) return res.status(500).send("Error hashing password");
+
+            db.query(
+              "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
+              [username, email, hash],
+              (err) => {
+                if (err) return res.status(500).send("Error registering user");
+                res.status(201).send("User registered successfully");
+              }
+            );
+          });
+        }
+      );
+    }
+  );
 });
 
 app.get("/dashboard", (req, res) => {
