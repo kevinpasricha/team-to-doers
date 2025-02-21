@@ -46,6 +46,14 @@ app.use(
   })
 );
 
+/**
+ * Handles login,
+ * Takes in username and password, makes sure user exists, and confirms passwords match
+ *
+ * @param {Object} req - The request object containing user details.
+ * @param {Object} res - The response object to send the result.
+ */
+
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
   if (username == "" || password == "")
@@ -78,6 +86,13 @@ app.post("/logout", (req, res) => {
   });
 });
 
+/**
+ * Handles user registration by validating inputs, hashing the password,
+ * and saving the user to the database.
+ *
+ * @param {Object} req - The request object containing user details.
+ * @param {Object} res - The response object to send the result.
+ */
 app.post("/register", (req, res) => {
   const { username, email, password } = req.body;
 
