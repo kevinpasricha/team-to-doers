@@ -65,4 +65,23 @@ QUnit.module("Todo API Tests", () => {
       "Response status should be 400 for invalid data"
     );
   });
+
+  QUnit.test("Add Todo Without Login", async (assert) => {
+    const todoData = {
+      title: "Unauthenticated Todo", // Invalid date (missing field)
+      description: "This is a test todo",
+      dueDate: "2025-08-20",
+    };
+
+    const res = await request(app)
+      .post("/todos")
+      .send(todoData)
+      .set("Accept", "application/json");
+
+    assert.equal(
+      res.status,
+      403,
+      "Response status should be 403 if trying to add a todo without logging in"
+    );
+  });
 });
