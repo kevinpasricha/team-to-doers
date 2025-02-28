@@ -56,8 +56,8 @@ app.use(
 
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
-  if (username == "" || password == "")
-    return res.status(400).send("Missing fields");
+
+  if (!username || !password) return res.status(400).send("Missing fields");
 
   db.query(
     "SELECT * FROM users WHERE username = ? LIMIT 1",
@@ -65,13 +65,13 @@ app.post("/login", (req, res) => {
     (err, results) => {
       if (err) return res.status(500).send("Database Error");
       if (results.length === 0)
-        return res.status(400).send("Invalid Credentials");
+        return res.status(400).send("Invalid Credentials user");
 
       const user = results[0];
 
       bcrypt.compare(password, user.password, (err, match) => {
         if (err) return res.status(500).send("Error checking password");
-        if (!match) return res.status(400).send("Invalid Credentials");
+        if (!match) return res.status(400).send("Invalid Credentials password");
 
         req.session.user = { id: user.id, username: user.username };
         res.redirect("/dashboard");
@@ -146,7 +146,45 @@ app.post("/register", (req, res) => {
 
 app.get("/dashboard", (req, res) => {
   if (!req.session.user) return res.status(403).send("Not authenticated");
-  res.send(`Welcome, ${req.session.username}!`);
+
+  res.send(`Welcome, ${req.session.user.username}!`);
+});
+
+app.get("/todos", (req, res) => {
+  if (!req.session.user) return res.status(403).send("Not authenticated");
+
+  const { id } = req.session.user;
+
+  db.query(
+    "SELECT title, description, dueDate FROM todos WHERE userID = ?",
+    [id],
+    (err, results) => {
+      if (err) return res.status(500).send("Database Error");
+
+      res.json(results);
+    }
+  );
+});
+
+app.post("/todos", (req, res) => {
+  if (!req.session.user) return res.status(403).send("Not authenticated");
+  const { id } = req.session.user;
+  const { title, description, dueDate } = req.body;
+
+  if (!title || !description || !dueDate) {
+    return res.status(400).send("All fields are required");
+  }
+
+  db.query(
+    "INSERT INTO todos (title, description, dueDate, userID) VALUES (?, ?, ?, ?)",
+    [title, description, dueDate, id],
+    (err, results) => {
+      if (err) return res.status(500).send("Database Error");
+
+      const newTodo = { id: results.insertId, title, description, dueDate };
+      res.status(200).json(newTodo);
+    }
+  );
 });
 
 module.exports = app;
