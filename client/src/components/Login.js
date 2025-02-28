@@ -12,6 +12,11 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
+    if (!username || !password) {
+      alert("Please enter all fields!");
+      return;
+    }
+
     try {
       await API.post("/login", { username, password });
       navigate("/dashboard"); // Redirect to dashboard
