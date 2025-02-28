@@ -7,13 +7,13 @@ QUnit.module("Login API Tests", () => {
   QUnit.test("Valid login returns success", async (assert) => {
     const res = await request(app)
       .post("/login")
-      .send({ username: "user1", password: "password123" })
+      .send({ username: "matthewpelter", password: "password" })
       .set("Accept", "application/json");
 
     assert.equal(
       res.status,
-      200,
-      "Response status should be 200 for valid login"
+      302,
+      "Response status should be 302 for valid login to redirect to dashboard"
     );
     // Additional assertions (such as checking redirection or session data) can be added here.
   });

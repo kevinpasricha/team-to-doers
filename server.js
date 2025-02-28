@@ -179,10 +179,12 @@ app.post("/todos", (req, res) => {
     "INSERT INTO todos (title, description, dueDate, userID) VALUES (?, ?, ?, ?)",
     [title, description, dueDate, id],
     (err, results) => {
-      if (err) return res.status(500).send("Database Error");
-
+      if (err) {
+        console.log(err);
+        return res.status(500).send("Database Error");
+      }
       const newTodo = { id: results.insertId, title, description, dueDate };
-      res.status(200).json(newTodo);
+      res.status(201).json(newTodo);
     }
   );
 });
