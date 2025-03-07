@@ -156,7 +156,7 @@ app.get("/todos", (req, res) => {
   const { id } = req.session.user;
 
   db.query(
-    "SELECT title, description, dueDate FROM todos WHERE userID = ?",
+    "SELECT id, title, description, dueDate FROM todos WHERE userID = ?",
     [id],
     (err, results) => {
       if (err) return res.status(500).send("Database Error");
@@ -185,6 +185,49 @@ app.post("/todos", (req, res) => {
       }
       const newTodo = { id: results.insertId, title, description, dueDate };
       res.status(201).json(newTodo);
+    }
+  );
+});
+
+app.put("/todos/:id", (req, res) => {
+  if (!req.session.user) return res.status(403).send("Not authenticated");
+  const { id } = req.session.user;
+  const todoId = req.params.id;
+
+  const { title, description, dueDate } = req.body;
+  if (!title || !description || !dueDate) {
+    return res.status(400).send("All fields are required");
+  }
+
+  db.query(
+    "UPDATE todos SET title = ?, description = ?, dueDate = ? WHERE id = ? AND userID = ?",
+    [title, description, dueDate, todoId, id],
+    (err, results) => {
+      if (err) return res.status(500).send("Database Error");
+      if (results.affectedRows === 0) {
+        return res.status(404).send("Todo not found or unauthorized");
+      }
+
+      res.status(200).json({ id: todoId, title, description, dueDate });
+    }
+  );
+});
+
+app.delete("/todos/:id", (req, res) => {
+  if (!req.session.user) return res.status(403).send("Not authenticated");
+  const { id } = req.session.user;
+  const todoId = req.params.id;
+
+  db.query(
+    "DELETE FROM todos WHERE id = ? AND userID = ?",
+    [todoId, id],
+    (err, results) => {
+      if (err) return res.status(500).send("Database Error");
+      if (results.affectedRows === 0) {
+        return res.status(404).send("Todo not found or unauthorized");
+      }
+
+      res.status(200).send("Todo deleted successfully");
     }
   );
 });

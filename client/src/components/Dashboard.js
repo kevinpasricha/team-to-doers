@@ -10,6 +10,7 @@ const Dashboard = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [editingTodo, setEditingTodo] = useState(null);
 
   useEffect(() => {
     API.get("/dashboard")
@@ -30,6 +31,24 @@ const Dashboard = () => {
     }
   };
 
+  const handleEdit = (todo) => {
+    setEditingTodo(todo);
+    setTitle(todo.title);
+    setDescription(todo.description);
+    setDueDate(todo.dueDate.split("T")[0]);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you wan to delete this todo?")) return;
+
+    try {
+      await API.delete(`/todos/${id}`);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
+    } catch (error) {
+      console.error("Error deleting todo: ", error);
+    }
+  };
+
   const handleLogout = async () => {
     await API.post("/logout");
     navigate("/"); // Redirect to login
@@ -42,17 +61,27 @@ const Dashboard = () => {
       return;
     }
 
-    const newTodo = { title, description, dueDate };
+    const todoData = { title, description, dueDate };
 
     try {
-      const response = await API.post("/todos", newTodo);
-      alert("Todo added successfully!");
+      if (editingTodo) {
+        const response = await API.put(`/todos/${editingTodo.id}`, todoData);
+        alert("Todo edited successfully!");
+        setTodos((prev) =>
+          prev.map((todo) =>
+            todo.id === editingTodo.id ? { ...todo, ...todoData } : todo
+          )
+        );
+        setEditingTodo(null);
+      } else {
+        const response = await API.post("/todos", todoData);
+        alert("Todo added successfully!");
+        setTodos((prev) => [...prev, response.data]);
+      }
 
       setTitle("");
       setDescription("");
       setDueDate("");
-
-      setTodos((prev) => [...prev, response.data]);
     } catch (error) {
       console.error("Error adding todo:", error);
     }
@@ -80,6 +109,9 @@ const Dashboard = () => {
                   day: "numeric",
                 })}
               </small>
+              <br />
+              <button onClick={() => handleEdit(todo)}>Edit</button>
+              <button onClick={() => handleDelete(todo.id)}>Delete</button>
             </div>
           );
         })}
@@ -107,7 +139,9 @@ const Dashboard = () => {
           onChange={(e) => setDueDate(e.target.value)}
         />
         <br />
-        <button type="submit">Add Todo</button>
+        <button type="submit">
+          {editingTodo ? "Update Todo" : "Add Todo"}
+        </button>
       </form>
     </div>
   );
