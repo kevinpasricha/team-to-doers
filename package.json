@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "qunit tests/add.test.js"
+    "test": "qunit tests/delete.test.js"
   },
   "keywords": [],
   "author": "",
