@@ -65,7 +65,7 @@ app.post("/login", (req, res) => {
     (err, results) => {
       if (err) return res.status(500).send("Database Error");
       if (results.length === 0)
-        return res.status(400).send("Invalid Credentials user");
+        return res.status(400).send("Invalid Credentials");
 
       const user = results[0];
 

@@ -88,61 +88,105 @@ const Dashboard = () => {
   };
 
   return (
-    <div style={{ textAlign: "center" }}>
-      <h2>Dashboard</h2>
-      <p>{message}</p>
-      <button onClick={handleLogout}>Logout</button>
-      <br />
-
-      <div id="todos">
-        {todos.map((todo) => {
-          return (
-            <div className="todo">
-              <h3>{todo.title}</h3>
-              <p>{todo.description}</p>
-              <small>
-                Due:{" "}
-                {new Date(todo.dueDate).toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </small>
-              <br />
-              <button onClick={() => handleEdit(todo)}>Edit</button>
-              <button onClick={() => handleDelete(todo.id)}>Delete</button>
-            </div>
-          );
-        })}
-      </div>
-      <br />
-      <br />
-      <form onSubmit={handleAdd}>
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-        />
-        <br />
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        ></textarea>
-        <br />
-        <input
-          type="date"
-          placeholder="Due Date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
-        <br />
-        <button type="submit">
-          {editingTodo ? "Update Todo" : "Add Todo"}
+    <div className="flex min-h-screen flex-col items-center bg-gray-100 p-6">
+      {/* Dashboard Header */}
+      <div className="mb-4 w-full max-w-4xl text-center">
+        <img className="mx-auto" src="./img/todo.png" />
+        <h2 className="text-3xl font-semibold text-gray-700">Dashboard</h2>
+        <p className="text-gray-600">{message}</p>
+        <button
+          onClick={handleLogout}
+          className="mt-3 rounded-lg bg-red-500 px-4 py-2 text-white transition hover:bg-red-600 focus:outline-none"
+        >
+          Logout
         </button>
-      </form>
+      </div>
+
+      {/* Two Column Layout */}
+      <div className="grid w-full max-w-4xl grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Left Column: Add Todo Form */}
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <h3 className="mb-4 text-lg font-semibold text-gray-700">
+            Add a Todo
+          </h3>
+          <form onSubmit={handleAdd} className="space-y-4">
+            <input
+              type="text"
+              placeholder="Title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:border-blue-500 focus:outline-none"
+            />
+            <textarea
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:border-blue-500 focus:outline-none"
+            />
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:border-blue-500 focus:outline-none"
+            />
+            <button
+              type="submit"
+              className="w-full rounded-lg bg-green-500 px-4 py-2 text-white transition hover:bg-green-600 focus:outline-none"
+            >
+              {editingTodo ? "Update Todo" : "Add Todo"}
+            </button>
+          </form>
+        </div>
+
+        {/* Right Column: List of Todos */}
+        <div className="rounded-lg bg-white p-6 shadow-md">
+          <h3 className="mb-4 text-lg font-semibold text-gray-700">
+            Your Todos
+          </h3>
+          {todos.length === 0 ? (
+            <p className="text-center text-gray-500">
+              No todos yet. Add one on the left!
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {todos.map((todo) => (
+                <div
+                  key={todo.id}
+                  className="rounded-lg border border-gray-300 bg-gray-50 p-4 shadow-sm"
+                >
+                  <h3 className="text-xl font-semibold text-gray-700">
+                    {todo.title}
+                  </h3>
+                  <p className="text-gray-600">{todo.description}</p>
+                  <small className="block text-gray-500">
+                    Due:{" "}
+                    {new Date(todo.dueDate).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </small>
+                  <div className="mt-2 flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(todo)}
+                      className="rounded-lg bg-blue-500 px-3 py-1 text-white transition hover:bg-blue-600"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(todo.id)}
+                      className="rounded-lg bg-red-500 px-3 py-1 text-white transition hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
